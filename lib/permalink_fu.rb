@@ -10,6 +10,30 @@ module PermalinkFu
     ClassMethods.setup_permalink_fu_on self do
       self.permalink_attributes = Array(attr_names)
       self.permalink_field      = (permalink_field || 'permalink').to_s
+      self.permalink_read_method  = :read_attribute
+      self.permalink_write_method = :write_attribute
+      self.permalink_class        = self
+      if options[:globalize2]
+        unless self.respond_to?(:translation_table_name) && self.respond_to?(:translates)
+          raise "globalize2 doesn't seem to be present"
+        end
+        are_any_pattrs_translated = self.permalink_attributes.any?{|a| self.translated_attribute_names.include?(a.to_sym)}
+        is_permalink_translated   = self.translated_attribute_names.include?(self.permalink_field.to_sym)
+        if are_any_pattrs_translated && !is_permalink_translated
+          raise "permalink field should be translated if any of the permalink attributes are translated"
+        end
+        unless is_permalink_translated
+          raise "permalink field needs to be translated if the :globalize2 option is used."
+        end
+        if self.translated_attribute_names.include?(self.permalink_field.to_sym)
+          self.send :alias_method,      :"#{self.permalink_field}_translated",  :"#{self.permalink_field}"
+          self.send :alias_method,      :"#{self.permalink_field}_translated=", :"#{self.permalink_field}="
+          self.permalink_read_method  = :"#{self.permalink_field}_translated"
+          self.permalink_write_method = :"#{self.permalink_field}_translated="
+          self.permalink_class        = self.send :translation_class
+        end
+      end
+
       self.permalink_options    = {:unique => true}.update(options)
     end
     
@@ -58,6 +82,9 @@ module PermalinkFu
         attr_accessor :permalink_options
         attr_accessor :permalink_attributes
         attr_accessor :permalink_field
+        attr_accessor :permalink_read_method
+        attr_accessor :permalink_write_method
+        attr_accessor :permalink_class
       end
 
       yield
@@ -77,7 +104,7 @@ module PermalinkFu
       if (value = define_attribute_methods_without_permalinks) && self.permalink_field
         class_eval <<-EOV
           def #{self.permalink_field}=(new_value);
-            write_attribute(:#{self.permalink_field}, new_value.blank? ? '' : PermalinkFu.escape(new_value));
+            self.send(self.class.permalink_write_method, new_value.blank? ? '' : PermalinkFu.escape(new_value));
           end
         EOV
       end
@@ -90,7 +117,7 @@ module PermalinkFu
   protected
     def create_common_permalink
       return unless should_create_permalink?
-      if read_attribute(self.class.permalink_field).blank? || permalink_fields_changed?
+      if self.send(self.class.permalink_read_method).blank? || permalink_fields_changed?
         send("#{self.class.permalink_field}=", create_permalink_for(self.class.permalink_attributes))
       end
 
@@ -99,12 +126,12 @@ module PermalinkFu
       return if respond_to?(permalink_changed) && !send(permalink_changed)
 
       # Otherwise find the limit and crop the permalink
-      limit   = self.class.columns_hash[self.class.permalink_field].limit
-      base    = send("#{self.class.permalink_field}=", read_attribute(self.class.permalink_field)[0..limit - 1])
+      limit   = self.class.permalink_class.columns_hash[self.class.permalink_field].limit
+      base    = send("#{self.class.permalink_field}=", self.send(self.class.permalink_read_method)[0..limit - 1])
       [limit, base]
     end
 
-    def create_unique_permalink
+    def create_unique_permalink_without_globalize2
       limit, base = create_common_permalink
       return if limit.nil? # nil if the permalink has not changed or :if/:unless fail
       counter = 1
@@ -132,12 +159,64 @@ module PermalinkFu
       end
     end
 
+    def create_unique_permalink # with globalize2 support # FIXME if there are untranslated attributes in permalink_attributes, the permalink also needs to be created for other languages!
+      create_unique_permalink_without_globalize2() unless self.class.permalink_options[:globalize2]
+      # we can assume hereafter that the permalink field is translated
+
+      limit, base = create_common_permalink
+      return if limit.nil? # nil if the permalink has not changed or :if/:unless fail
+
+      locales_to_create = new_record? ? [(self.class.locale || I18n.locale)] : self.translated_locales
+      current_locale    = I18n.locale
+      locales_to_create.each do |locale|
+        I18n.locale = locale
+        counter = 1
+
+        # add permalink field condition
+        conditions = ["#{self.class.translation_table_name}.#{self.class.permalink_field} = ?", base]
+
+        translation = self.translations.find_or_initialize_by_locale(locale) #
+        unless translation.new_record? # FIXME check -> also (or instead) need to do something unless self.new_record? ???
+          conditions.first << " and #{self.class.translation_table_name}.id != ?"
+          conditions       << translation.id #
+        end
+
+        if self.class.permalink_options[:scope]
+          [self.class.permalink_options[:scope]].flatten.each do |scope|
+            table_name = self.class.translated_attributes.include?(scope.to_sym) ? self.class.translation_table_name : self.class.table_name
+            value = send(scope)
+            if value
+              conditions.first << " and #{table_name}.#{scope} = ?"
+              conditions       << send(scope)
+            else
+              conditions.first << " and #{table_name}.#{scope} IS NULL"
+            end
+          end
+        end
+
+        # scope by locale
+        conditions.first << " and #{self.class.translation_table_name}.locale = ?"
+        conditions       << locale.to_s
+
+        # append counter just like the _without_globalize2 way (only we need to use count() instead of exists?())
+        while 0 != self.class.count(:conditions => conditions, :joins => :translations)
+          suffix = "-#{counter += 1}"
+          conditions[1] = "#{base[0..limit-suffix.size-1]}#{suffix}"
+          send("#{self.class.permalink_field}=", conditions[1])
+          #globalize.write(self.class.locale || I18n.locale, name, value)
+          #globalize_write(locale, self.class.permalink_field, conditions[1])
+        end
+      end
+      I18n.locale = current_locale
+    end
+
     def create_permalink_for(attr_names)
       str = attr_names.collect { |attr_name| send(attr_name).to_s } * " "
       str.blank? ? PermalinkFu::ClassMethods.random_permalink : str
     end
 
   private
+
     def should_create_permalink?
       if self.class.permalink_field.blank?
         false
