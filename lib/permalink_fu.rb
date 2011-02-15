@@ -163,13 +163,15 @@ module PermalinkFu
       create_unique_permalink_without_globalize2() unless self.class.permalink_options[:globalize2]
       # we can assume hereafter that the permalink field is translated
 
-      limit, base = create_common_permalink
-      return if limit.nil? # nil if the permalink has not changed or :if/:unless fail
-
+      # TODO check: works also if one language is present and we just created a new language version?
       locales_to_create = new_record? ? [(self.class.locale || I18n.locale)] : self.translated_locales
       current_locale    = I18n.locale
+
       locales_to_create.each do |locale|
         I18n.locale = locale
+        limit, base = create_common_permalink
+        next if limit.nil? # nil if the permalink has not changed or :if/:unless fail
+
         counter = 1
 
         # add permalink field condition
