@@ -117,13 +117,13 @@ module PermalinkFu
   protected
     def create_common_permalink
       return unless should_create_permalink?
-      if self.send(*self.class.permalink_read_method).blank? || permalink_fields_changed?
+      if self.send(*self.class.permalink_read_method).blank? || permalink_fields_changed? || permalink_scope_fields_changed?
         send("#{self.class.permalink_field}=", create_permalink_for(self.class.permalink_attributes))
       end
 
       # Quit now if we have the changed method available and nothing has changed
       permalink_changed = "#{self.class.permalink_field}_changed?"
-      return if respond_to?(permalink_changed) && !send(permalink_changed)
+      return if respond_to?(permalink_changed) && !send(permalink_changed) && !permalink_scope_fields_changed?
 
       # Otherwise find the limit and crop the permalink
       limit   = self.class.permalink_class.columns_hash[self.class.permalink_field].limit
@@ -178,10 +178,9 @@ module PermalinkFu
         # add permalink field condition
         conditions = ["#{self.class.translation_table_name}.#{self.class.permalink_field} = ?", base]
 
-        translation = self.translations.find_or_initialize_by_locale(locale) #
-        unless translation.new_record? # FIXME check -> also (or instead) need to do something unless self.new_record? ???
-          conditions.first << " and #{self.class.translation_table_name}.id != ?"
-          conditions       << translation.id #
+        unless new_record?
+          conditions.first << " and #{self.class.table_name}.id != ?"
+          conditions       << id()
         end
 
         if self.class.permalink_options[:scope]
@@ -234,6 +233,14 @@ module PermalinkFu
     def permalink_fields_changed?
       return false unless self.class.permalink_options[:update]
       self.class.permalink_attributes.any? do |attribute|
+        changed_method = "#{attribute}_changed?"
+        respond_to?(changed_method) ? send(changed_method) : true
+      end
+    end
+
+    def permalink_scope_fields_changed?
+      return false unless self.class.permalink_options[:update] && self.class.permalink_options[:scope]
+      [*self.class.permalink_options[:scope]].any? do |attribute|
         changed_method = "#{attribute}_changed?"
         respond_to?(changed_method) ? send(changed_method) : true
       end
