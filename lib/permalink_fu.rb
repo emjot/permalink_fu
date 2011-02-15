@@ -127,7 +127,7 @@ module PermalinkFu
 
       # Otherwise find the limit and crop the permalink
       limit   = self.class.permalink_class.columns_hash[self.class.permalink_field].limit
-      base    = send("#{self.class.permalink_field}=", self.send(*self.class.permalink_read_method)[0..limit - 1])
+      base    = self.send("#{self.class.permalink_field}=", self.send(*self.class.permalink_read_method)[0..limit - 1])
       [limit, base]
     end
 
@@ -164,7 +164,8 @@ module PermalinkFu
       # we can assume hereafter that the permalink field is translated
 
       # TODO check: works also if one language is present and we just created a new language version?
-      locales_to_create = new_record? ? [(self.class.locale || I18n.locale)] : self.translated_locales
+      self.translations(true) # reload translations to get the actual translated_locales
+      locales_to_create = (self.translated_locales + [(self.class.locale || I18n.locale)]).uniq
       current_locale    = I18n.locale
 
       locales_to_create.each do |locale|
@@ -185,7 +186,7 @@ module PermalinkFu
 
         if self.class.permalink_options[:scope]
           [self.class.permalink_options[:scope]].flatten.each do |scope|
-            table_name = self.class.translated_attributes.include?(scope.to_sym) ? self.class.translation_table_name : self.class.table_name
+            table_name = self.class.translated_attribute_names.include?(scope.to_sym) ? self.class.translation_table_name : self.class.table_name
             value = send(scope)
             if value
               conditions.first << " and #{table_name}.#{scope} = ?"
