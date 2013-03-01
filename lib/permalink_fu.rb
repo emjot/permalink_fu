@@ -1,5 +1,6 @@
 require 'yaml'
 require 'digest/sha1'
+require 'permalink_fu/version'
 
 module PermalinkFu
   def has_permalink(attr_names = [], permalink_field = nil, options = {})
