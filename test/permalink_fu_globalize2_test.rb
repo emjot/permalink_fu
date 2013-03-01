@@ -3,11 +3,11 @@
 # Load the plugin's test_helper (Rails 2.x needs the path)
 begin
   require File.dirname(__FILE__) + '/test_helper.rb'
-  require File.dirname(__FILE__) + '/test_helper_globalize2.rb'
+  require File.dirname(__FILE__) + '/test_helper_globalize3.rb'
   require File.expand_path(File.dirname(__FILE__) + '/data/models')
 rescue LoadError
   require 'test_helper'
-  require 'test_helper_globalize2'
+  require 'test_helper_globalize3'
   require 'data/models'
 end
 

@@ -13,9 +13,9 @@ module PermalinkFu
       self.permalink_read_method  = [:read_attribute, self.permalink_field]
       self.permalink_write_method = [:write_attribute, self.permalink_field]
       self.permalink_class        = self
-      if options[:globalize2]
+      if options[:globalize3]
         unless self.respond_to?(:translations_table_name) && self.respond_to?(:translates)
-          raise "globalize2 doesn't seem to be present"
+          raise "globalize3 doesn't seem to be present"
         end
         are_any_pattrs_translated = self.permalink_attributes.any?{|a| self.translated_attribute_names.include?(a.to_sym)}
         is_permalink_translated   = self.translated_attribute_names.include?(self.permalink_field.to_sym)
@@ -23,7 +23,7 @@ module PermalinkFu
           raise "permalink field should be translated if any of the permalink attributes are translated"
         end
         unless is_permalink_translated
-          raise "permalink field needs to be translated if the :globalize2 option is used."
+          raise "permalink field needs to be translated if the :globalize3 option is used."
         end
         if self.translated_attribute_names.include?(self.permalink_field.to_sym)
           self.send :alias_method,      :"#{self.permalink_field}_translated",  :"#{self.permalink_field}"
@@ -131,7 +131,7 @@ module PermalinkFu
       [limit, base]
     end
 
-    def create_unique_permalink_without_globalize2
+    def create_unique_permalink_without_globalize3
       limit, base = create_common_permalink
       return if limit.nil? # nil if the permalink has not changed or :if/:unless fail
       counter = 1
@@ -159,8 +159,8 @@ module PermalinkFu
       end
     end
 
-    def create_unique_permalink # with globalize2 support # FIXME if there are untranslated attributes in permalink_attributes, the permalink also needs to be created for other languages!
-      return create_unique_permalink_without_globalize2() unless self.class.permalink_options && self.class.permalink_options[:globalize2]
+    def create_unique_permalink # with globalize3 support # FIXME if there are untranslated attributes in permalink_attributes, the permalink also needs to be created for other languages!
+      return create_unique_permalink_without_globalize3() unless self.class.permalink_options && self.class.permalink_options[:globalize3]
       # we can assume hereafter that the permalink field is translated
 
       # TODO check: works also if one language is present and we just created a new language version?
@@ -200,7 +200,7 @@ module PermalinkFu
         conditions.first << " and #{self.class.translations_table_name}.locale = ?"
         conditions       << locale.to_s
 
-        # append counter just like the _without_globalize2 way (only we need to use count() instead of exists?())
+        # append counter just like the _without_globalize3 way (only we need to use count() instead of exists?())
         while 0 != self.class.count(:conditions => conditions, :joins => :translations)
           suffix = "-#{counter += 1}"
           conditions[1] = "#{base[0..limit-suffix.size-1]}#{suffix}"
