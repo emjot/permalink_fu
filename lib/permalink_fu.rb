@@ -14,7 +14,7 @@ module PermalinkFu
       self.permalink_write_method = [:write_attribute, self.permalink_field]
       self.permalink_class        = self
       if options[:globalize2]
-        unless self.respond_to?(:translation_table_name) && self.respond_to?(:translates)
+        unless self.respond_to?(:translations_table_name) && self.respond_to?(:translates)
           raise "globalize2 doesn't seem to be present"
         end
         are_any_pattrs_translated = self.permalink_attributes.any?{|a| self.translated_attribute_names.include?(a.to_sym)}
@@ -176,7 +176,7 @@ module PermalinkFu
         counter = 1
 
         # add permalink field condition
-        conditions = ["#{self.class.translation_table_name}.#{self.class.permalink_field} = ?", base]
+        conditions = ["#{self.class.translations_table_name}.#{self.class.permalink_field} = ?", base]
 
         unless new_record?
           conditions.first << " and #{self.class.table_name}.id != ?"
@@ -185,7 +185,7 @@ module PermalinkFu
 
         if self.class.permalink_options[:scope]
           [self.class.permalink_options[:scope]].flatten.each do |scope|
-            table_name = self.class.translated_attribute_names.include?(scope.to_sym) ? self.class.translation_table_name : self.class.table_name
+            table_name = self.class.translated_attribute_names.include?(scope.to_sym) ? self.class.translations_table_name : self.class.table_name
             value = send(scope)
             if value
               conditions.first << " and #{table_name}.#{scope} = ?"
@@ -197,7 +197,7 @@ module PermalinkFu
         end
 
         # scope by locale
-        conditions.first << " and #{self.class.translation_table_name}.locale = ?"
+        conditions.first << " and #{self.class.translations_table_name}.locale = ?"
         conditions       << locale.to_s
 
         # append counter just like the _without_globalize2 way (only we need to use count() instead of exists?())
