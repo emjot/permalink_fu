@@ -166,7 +166,7 @@ module PermalinkFu
 
       # TODO check: works also if one language is present and we just created a new language version?
       self.translations(true) # reload translations to get the actual translated_locales
-      locales_to_create = (self.translated_locales + [(self.class.locale || I18n.locale)]).uniq
+      locales_to_create = (self.translated_locales + [I18n.locale]).uniq
       current_locale    = I18n.locale
 
       locales_to_create.each do |locale|
