@@ -37,7 +37,7 @@ module PermalinkFu
 
       self.permalink_options    = {:unique => true}.update(options)
     end
-    
+
     include InstanceMethods
   end
 
@@ -60,7 +60,7 @@ module PermalinkFu
     CODEPOINTS = Hash.new { |h, k|
       h[k] = YAML::load_file(File.join(File.dirname(__FILE__), "data", "#{k}.yml"))
     }
-    
+
     class << self
       def decode(string)
         string.gsub(/[^\x00-\x7f]/u) do |codepoint|
@@ -71,12 +71,12 @@ module PermalinkFu
           end
         end
       end
-      
+
       def random_permalink(seed = nil)
         Digest::SHA1.hexdigest("#{seed}#{Time.now.to_s.split(//).sort_by {rand}}")
       end
     end
-  
+
     def self.setup_permalink_fu_on(base)
       base.extend self
       class << base
@@ -202,7 +202,7 @@ module PermalinkFu
         conditions       << locale.to_s
 
         # append counter just like the _without_globalize3 way (only we need to use count() instead of exists?())
-        while 0 != self.class.count(:conditions => conditions, :joins => :translations)
+        while 0 != self.class.joins(:translations).where(conditions).count
           suffix = "-#{counter += 1}"
           conditions[1] = "#{base[0..limit-suffix.size-1]}#{suffix}"
           send("#{self.class.permalink_field}=", conditions[1])
