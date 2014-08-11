@@ -14,9 +14,9 @@ module PermalinkFu
       self.permalink_read_method  = [:read_attribute, self.permalink_field]
       self.permalink_write_method = [:write_attribute, self.permalink_field]
       self.permalink_class        = self
-      if options[:globalize3]
+      if options[:globalize]
         unless self.respond_to?(:translations_table_name) && self.respond_to?(:translates)
-          raise "globalize3 doesn't seem to be present"
+          raise "globalize doesn't seem to be present"
         end
         are_any_pattrs_translated = self.permalink_attributes.any?{|a| self.translated_attribute_names.include?(a.to_sym)}
         is_permalink_translated   = self.translated_attribute_names.include?(self.permalink_field.to_sym)
@@ -24,7 +24,7 @@ module PermalinkFu
           raise "permalink field should be translated if any of the permalink attributes are translated"
         end
         unless is_permalink_translated
-          raise "permalink field needs to be translated if the :globalize3 option is used."
+          raise "permalink field needs to be translated if the :globalize option is used."
         end
         if self.translated_attribute_names.include?(self.permalink_field.to_sym)
           self.send :alias_method,      :"#{self.permalink_field}_translated",  :"#{self.permalink_field}"
@@ -132,7 +132,7 @@ module PermalinkFu
       [limit, base]
     end
 
-    def create_unique_permalink_without_globalize3
+    def create_unique_permalink_without_globalize
       limit, base = create_common_permalink
       return if limit.nil? # nil if the permalink has not changed or :if/:unless fail
       counter = 1
@@ -160,55 +160,54 @@ module PermalinkFu
       end
     end
 
-    def create_unique_permalink # with globalize3 support # FIXME if there are untranslated attributes in permalink_attributes, the permalink also needs to be created for other languages!
-      return create_unique_permalink_without_globalize3() unless self.class.permalink_options && self.class.permalink_options[:globalize3]
+    def create_unique_permalink # with globalize support # FIXME if there are untranslated attributes in permalink_attributes, the permalink also needs to be created for other languages!
+      return create_unique_permalink_without_globalize() unless self.class.permalink_options && self.class.permalink_options[:globalize]
       # we can assume hereafter that the permalink field is translated
 
       # TODO check: works also if one language is present and we just created a new language version?
       self.translations(true) # reload translations to get the actual translated_locales
-      locales_to_create = (self.translated_locales + [I18n.locale]).uniq
-      current_locale    = I18n.locale
+      locales_to_create = (self.translated_locales + [Globalize.locale]).uniq
 
       locales_to_create.each do |locale|
-        I18n.locale = locale
-        limit, base = create_common_permalink
-        next if limit.nil? # nil if the permalink has not changed or :if/:unless fail
+        Globalize.with_locale(locale) do
+          limit, base = create_common_permalink
+          next if limit.nil? # nil if the permalink has not changed or :if/:unless fail
 
-        counter = 1
+          counter = 1
 
-        # add permalink field condition
-        conditions = ["#{self.class.translations_table_name}.#{self.class.permalink_field} = ?", base]
+          # add permalink field condition
+          conditions = ["#{self.class.translations_table_name}.#{self.class.permalink_field} = ?", base]
 
-        unless new_record?
-          conditions.first << " and #{self.class.table_name}.id != ?"
-          conditions       << id()
-        end
+          unless new_record?
+            conditions.first << " and #{self.class.table_name}.id != ?"
+            conditions       << id()
+          end
 
-        if self.class.permalink_options[:scope]
-          [self.class.permalink_options[:scope]].flatten.each do |scope|
-            table_name = self.class.translated_attribute_names.include?(scope.to_sym) ? self.class.translations_table_name : self.class.table_name
-            value = send(scope)
-            if value
-              conditions.first << " and #{table_name}.#{scope} = ?"
-              conditions       << send(scope)
-            else
-              conditions.first << " and #{table_name}.#{scope} IS NULL"
+          if self.class.permalink_options[:scope]
+            [self.class.permalink_options[:scope]].flatten.each do |scope|
+              table_name = self.class.translated_attribute_names.include?(scope.to_sym) ? self.class.translations_table_name : self.class.table_name
+              value = send(scope)
+              if value
+                conditions.first << " and #{table_name}.#{scope} = ?"
+                conditions       << send(scope)
+              else
+                conditions.first << " and #{table_name}.#{scope} IS NULL"
+              end
             end
           end
-        end
 
-        # scope by locale
-        conditions.first << " and #{self.class.translations_table_name}.locale = ?"
-        conditions       << locale.to_s
+          # scope by locale
+          conditions.first << " and #{self.class.translations_table_name}.locale = ?"
+          conditions       << locale.to_s
 
-        # append counter just like the _without_globalize3 way (only we need to use count() instead of exists?())
-        while 0 != self.class.joins(:translations).where(conditions).count
-          suffix = "-#{counter += 1}"
-          conditions[1] = "#{base[0..limit-suffix.size-1]}#{suffix}"
-          send("#{self.class.permalink_field}=", conditions[1])
+          # append counter just like the _without_globalize way (only we need to use count() instead of exists?())
+          while 0 != self.class.joins(:translations).where(conditions).count
+            suffix = "-#{counter += 1}"
+            conditions[1] = "#{base[0..limit-suffix.size-1]}#{suffix}"
+            send("#{self.class.permalink_field}=", conditions[1])
+          end
         end
       end
-      I18n.locale = current_locale
     end
 
     def create_permalink_for(attr_names)
