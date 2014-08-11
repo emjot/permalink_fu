@@ -2,8 +2,7 @@
 
 A simple plugin for creating URL-friendly permalinks (slugs) from attributes.
 
-Uses [`ActiveSupport::Multibyte::Handlers::UTF8Handler`](http://api.rubyonrails.org/classes/ActiveSupport/Multibyte/Handlers/UTF8Handler.html) (part of Rails since 1.2) rather than `iconv` (which is [inconsistent between platforms](http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-talk/243426)) for normalization/decomposition.
-
+This branch implements support for translated permalinks by [globalize](https://github.com/globalize/globalize) gem.
 
 ## Usage
 
