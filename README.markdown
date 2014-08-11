@@ -54,6 +54,31 @@ Use the `:if` or `:unless` options to specify a Proc, method, or string to be ca
 
 You can use `PermalinkFu.escape` to escape a string manually.
 
+## Use with Globalize gem
+
+    class Article < ActiveRecord::Base   
+      translates :title
+      
+      has_permalink :title, :globalize => true
+    end
+
+This defines that your permalink base on title and that title is translated by Globalize. The `:globalize => true` option tells permalinkFu that it works
+with a translated attribute.
+
+Remeber that the uniqueness always works with a scope based on the locale, also if you don't specify a scope directly.
+
+## Development and Testing
+
+If you change any gem dependencies, you need to re-generate the gemfiles via `bundle exec appraisal update`.
+  
+To setup tests, make sure all the ruby versions defined in `.travis.yml` are installed on your system.
+
+Run tests via:
+
+* `rake wwtd` (or, faster: `rake wwtd:parallel`) for all combinations of ruby/rails versions
+* `rake wwtd:local` for all rails versions, but only on current ruby
+* `rake spec` (or e.g. `bundle exec rspec spec --format documentation`) with main Gemfile and only on current ruby 
+
 
 ## Credits
 
