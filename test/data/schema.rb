@@ -1,5 +1,13 @@
 ActiveRecord::Schema.define do
 
+  create_table :base_models, :force => true do |t|
+    t.string  :type
+    t.string  :title
+    t.string  :permalink
+    t.string  :extra
+    t.string  :foo
+  end
+
   create_table :posts, :force => true do |t|
   end
 
