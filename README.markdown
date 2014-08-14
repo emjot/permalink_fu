@@ -1,5 +1,7 @@
 # PermalinkFu
 
+[![Build Status](https://travis-ci.org/emjot/permalink_fu.svg?branch=globalize)](https://travis-ci.org/emjot/permalink_fu)
+
 This is a fork of goncalossilva/permalink_fu, a simple plugin for creating URL-friendly permalinks (slugs) from attributes.
 
 It supports globalize model translations in the following branches:
