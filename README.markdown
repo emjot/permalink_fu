@@ -60,15 +60,18 @@ You can use `PermalinkFu.escape` to escape a string manually.
 ## Use with Globalize gem
 
     class Article < ActiveRecord::Base   
-      translates :title
+      translates :title, :permalink
       
       has_permalink :title, :globalize => true
     end
 
-This defines that your permalink base on title and that title is translated by Globalize. The `:globalize => true` option tells permalinkFu that it works
-with a translated attribute.
+Just add the `:globalize => true` option when the permalink is based on translated attributes. You will also need
+to translate the permalink field itself.  
 
-Remeber that the uniqueness always works with a scope based on the locale, also if you don't specify a scope directly.
+Note:
+
+* mixing translated and untranslated attributes for `has_permalink` is currently not supported
+* when using the `globalize` option, it automatically adds a `:locale` scope when determining the permalink uniqueness  
 
 ## Development and Testing
 
