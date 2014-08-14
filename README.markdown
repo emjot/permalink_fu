@@ -1,9 +1,12 @@
 # PermalinkFu
 
-A simple plugin for creating URL-friendly permalinks (slugs) from attributes.
+This is a fork of goncalossilva/permalink_fu, a simple plugin for creating URL-friendly permalinks (slugs) from attributes.
 
-Uses [`ActiveSupport::Multibyte::Handlers::UTF8Handler`](http://api.rubyonrails.org/classes/ActiveSupport/Multibyte/Handlers/UTF8Handler.html) (part of Rails since 1.2) rather than `iconv` (which is [inconsistent between platforms](http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-talk/243426)) for normalization/decomposition.
+It supports globalize model translations in the following branches:
 
+* globalize branch: [globalize](https://github.com/globalize/globalize) 4.x / Rails 4 (contains up-to-date usage instructions)
+* globalize3 branch: [globalize3](https://github.com/svenfuchs/globalize3) 0.3.x / Rails 3 (old, without usage instructions)
+* globalize2 branch: [globalize2](https://github.com/joshmh/globalize2) for Rails 2 (old, without usage instructions)
 
 ## Usage
 
