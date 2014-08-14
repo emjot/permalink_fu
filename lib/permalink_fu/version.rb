@@ -1,3 +1,3 @@
 module PermalinkFu
-  VERSION = "1.0.0" unless defined?(PermalinkFu::VERSION)
+  VERSION = "1.0.0"
 end
