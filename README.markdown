@@ -7,7 +7,7 @@ This is a fork of goncalossilva/permalink_fu, a simple plugin for creating URL-f
 It supports globalize model translations in the following branches:
 
 * globalize branch: [globalize](https://github.com/globalize/globalize) 5.x / Rails 4.2-5.x (contains up-to-date usage instructions)
-* globalize4 branch: [globalize4](https://github.com/globalize/globalize4) 4.x / Rails 4 (old, contains usage instructions)
+* globalize4 branch: [globalize](https://github.com/globalize/globalize) 4.x / Rails 4 (old, contains usage instructions)
 * globalize3 branch: [globalize3](https://github.com/svenfuchs/globalize3) 0.3.x / Rails 3 (old, without usage instructions)
 * globalize2 branch: [globalize2](https://github.com/joshmh/globalize2) for Rails 2 (old, without usage instructions)
 
