@@ -14,7 +14,7 @@ class PermalinkFuGlobalizeTest < ActiveSupport::TestCase
       assert_equal true, Post.translates?
       assert_equal %w(content permalink subject), Post.translated_attribute_names.map(&:to_s).sort
       p = Post.create!(:subject => 'Post 1')
-      assert_equal 1, p.translations(true).size
+      assert_equal 1, ActiveRecord::VERSION::MAJOR >= 5 ? p.translations.reload.size : p.translations(true).size
       assert_equal :en, p.translations[0].locale
       assert_equal [:en], p.translated_locales
     end

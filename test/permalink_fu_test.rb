@@ -121,8 +121,10 @@ class PermalinkFuTest < ActiveSupport::TestCase
       m.title = 'test'
       assert m.save
       m.permalink = 'bar'
-      m.instance_eval do
-        @changed_attributes = {}
+      if ActiveRecord::VERSION::MAJOR >= 5
+        m.clear_attribute_changes(['permalink'])
+      else
+        m.instance_eval { @changed_attributes = {} }
       end
       assert m.save
       assert_equal 'bar', m.permalink

@@ -165,7 +165,8 @@ module PermalinkFu
       # we can assume hereafter that the permalink field is translated
 
       # TODO check: works also if one language is present and we just created a new language version?
-      self.translations(true) # reload translations to get the actual translated_locales
+      # reload translations to get the actual translated_locales
+      ActiveRecord::VERSION::MAJOR >= 5 ? self.translations.reload : self.translations(true)
       locales_to_create = (self.translated_locales + [Globalize.locale]).uniq
 
       locales_to_create.each do |locale|
