@@ -17,14 +17,15 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = PermalinkFu::VERSION
 
-  gem.add_dependency 'activerecord', '>= 3.2' # FIXME: support other versions too?
+  gem.add_dependency 'activerecord', '>= 4.0' # FIXME: support other versions too?
 
   gem.add_development_dependency 'mocha'
-  gem.add_development_dependency 'activesupport', '>= 3.2' # FIXME: required at runtime ????
-  gem.add_development_dependency 'sqlite3'
+  gem.add_development_dependency 'activesupport', '>= 4.0' # FIXME: required at runtime ????
+  gem.add_development_dependency 'sqlite3',       '~> 1.3.0'
+  gem.add_development_dependency 'minitest',       '< 5.12.0' # TODO: remove line after ruby < 2.2 support is dropped
   gem.add_development_dependency 'globalize'
   gem.add_development_dependency 'bundler',       '~> 1.3'
-  gem.add_development_dependency 'appraisal',     '~> 1.0.0'
+  gem.add_development_dependency 'appraisal',     '~> 2.0'
   gem.add_development_dependency 'rake'
-  gem.add_development_dependency 'wwtd',          '~> 0.5.1'
+  gem.add_development_dependency 'wwtd',          '~> 1.0'
 end

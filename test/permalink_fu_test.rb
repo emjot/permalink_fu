@@ -45,7 +45,7 @@ class PermalinkFuTest < ActiveSupport::TestCase
       m = SubClassNoPermalinkModel.new
       m.title = 'foo'
       assert m.save
-      assert_equal m.permalink, nil
+      assert_nil m.permalink
     end
 
     test 'should escape permalink correctly' do
@@ -174,22 +174,16 @@ class PermalinkFuTest < ActiveSupport::TestCase
     end
 
     test 'should work on limited permalink attributes' do
-      begin
-        old = MockModel.columns_hash['permalink'].instance_variable_get(:@limit)
-        MockModel.columns_hash['permalink'].instance_variable_set(:@limit, 2)
+      with_mocked_limit(MockModel, 'permalink', 2) do
         m   = MockModel.new
         m.title = 'BOO'
         assert m.save
         assert_equal 'bo', m.permalink
-      ensure
-        MockModel.columns_hash['permalink'].instance_variable_set(:@limit, old)
       end
     end
 
     test 'should limit unique permalinks' do
-      begin
-        old = MockModel.columns_hash['permalink'].instance_variable_get(:@limit)
-        MockModel.columns_hash['permalink'].instance_variable_set(:@limit, 3)
+      with_mocked_limit(MockModel, 'permalink', 3) do
         m   = MockModel.new
         m.title = 'foo'
         assert m.save
@@ -198,8 +192,6 @@ class PermalinkFuTest < ActiveSupport::TestCase
         m.title = 'foo'
         assert m.save
         assert_equal 'f-2', m.permalink
-      ensure
-        MockModel.columns_hash['permalink'].instance_variable_set(:@limit, old)
       end
     end
 

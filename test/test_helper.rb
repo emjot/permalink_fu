@@ -13,11 +13,13 @@ require 'mocha'
 require 'globalize'
 require 'permalink_fu'
 
-require File.expand_path(File.dirname(__FILE__) + '/data/models.rb')
-
 ActiveRecord::Base.establish_connection(:adapter => 'sqlite3', :database => ':memory:')
 
+require File.expand_path(File.dirname(__FILE__) + '/data/models.rb')
+
 class ActiveSupport::TestCase
+  ActiveSupport.test_order = :random if ActiveSupport.respond_to?(:test_order)
+
   def reset_db!(schema_path = nil)
     ActiveRecord::Migration.verbose = false
 
@@ -41,6 +43,17 @@ class ActiveSupport::TestCase
     assert model.reflect_on_all_associations(:has_many).detect { |association|
       association.name.to_s == associated.to_s
     }
+  end
+
+  def with_mocked_limit(model_class, column_name, limit)
+    column = model_class.columns_hash[column_name]
+    type = column.respond_to?(:cast_type) ? column.cast_type : column
+
+    old = type.instance_variable_get(:@limit)
+    type.instance_variable_set(:@limit, limit)
+    yield
+  ensure
+    type.instance_variable_set(:@limit, old)
   end
 end
 
