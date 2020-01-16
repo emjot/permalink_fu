@@ -261,4 +261,6 @@ module PermalinkFu
 end
 
 # Extend ActiveRecord functionality
-ActiveRecord::Base.extend PermalinkFu
+ActiveSupport.on_load(:active_record) do
+  extend PermalinkFu
+end
