@@ -1,11 +1,12 @@
 ActiveRecord::Schema.define do
 
   create_table :base_models, :force => true do |t|
-    t.string  :type,      limit: 255
-    t.string  :title,     limit: 255
-    t.string  :permalink, limit: 255
-    t.string  :extra,     limit: 255
-    t.string  :foo,       limit: 255
+    t.string  :type,            limit: 255
+    t.string  :title,           limit: 255
+    t.string  :permalink,       limit: 255
+    t.string  :short_permalink, limit: 3
+    t.string  :extra,           limit: 255
+    t.string  :foo,             limit: 255
   end
 
   create_table :posts, :force => true do |t|

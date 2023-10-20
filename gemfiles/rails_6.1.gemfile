@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-gem "rails", "~> 5.1.0"
-gem "globalize", "~> 5.0"
+gem "rails", "~> 6.1.0"
+gem "globalize", "~> 6.0"
 
 gemspec path: "../"

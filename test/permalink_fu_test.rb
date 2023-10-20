@@ -176,25 +176,21 @@ class PermalinkFuTest < ActiveSupport::TestCase
     end
 
     test 'should work on limited permalink attributes' do
-      with_mocked_limit(MockModel, 'permalink', 2) do
-        m   = MockModel.new
-        m.title = 'BOO'
-        assert m.save
-        assert_equal 'bo', m.permalink
-      end
+      m   = MockModelShortPermalink.new
+      m.title = 'BOOO'
+      assert m.save
+      assert_equal 'boo', m.short_permalink
     end
 
     test 'should limit unique permalinks' do
-      with_mocked_limit(MockModel, 'permalink', 3) do
-        m   = MockModel.new
-        m.title = 'foo'
-        assert m.save
-        assert_equal 'foo', m.permalink
-        m   = MockModel.new
-        m.title = 'foo'
-        assert m.save
-        assert_equal 'f-2', m.permalink
-      end
+      m   = MockModelShortPermalink.new
+      m.title = 'foo'
+      assert m.save
+      assert_equal 'foo', m.short_permalink
+      m   = MockModelShortPermalink.new
+      m.title = 'foo'
+      assert m.save
+      assert_equal 'f-2', m.short_permalink
     end
 
     test 'should abide by if proc condition' do

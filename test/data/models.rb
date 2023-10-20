@@ -37,6 +37,10 @@ class MockModel < BaseModel
   has_permalink :title
 end
 
+class MockModelShortPermalink < BaseModel
+  has_permalink [:title], :short_permalink
+end
+
 class MockModelExtra < BaseModel
   has_permalink [:title, :extra]
 end

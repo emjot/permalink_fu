@@ -44,18 +44,6 @@ class ActiveSupport::TestCase
       association.name.to_s == associated.to_s
     }
   end
-
-  def with_mocked_limit(model_class, column_name, limit)
-    column = model_class.columns_hash[column_name]
-    type = column.respond_to?(:cast_type) ? column.cast_type : column
-    type = type.respond_to?(:sql_type_metadata) ? type.sql_type_metadata : type
-
-    old = type.instance_variable_get(:@limit)
-    type.instance_variable_set(:@limit, limit)
-    yield
-  ensure
-    type.instance_variable_set(:@limit, old)
-  end
 end
 
 module ActiveRecord
