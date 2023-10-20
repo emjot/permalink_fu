@@ -124,7 +124,12 @@ module PermalinkFu
 
       # Quit now if we have the changed method available and nothing has changed
       permalink_changed = "#{self.class.permalink_field}_changed?"
-      return if respond_to?(permalink_changed) && !send(permalink_changed) && !permalink_scope_fields_changed?
+      if respond_to?(permalink_changed) && !send(permalink_changed) &&
+        !permalink_scope_fields_changed? &&
+        # HACK: sometimes change tracking doesn't seem to work correctly in new translations? no test yet to verify:
+        !(self.class.permalink_options[:globalize] && self.translated_locales.include?(Globalize.locale))
+        return
+      end
 
       # Otherwise find the limit and crop the permalink
       limit   = self.class.permalink_class.columns_hash[self.class.permalink_field].limit
@@ -233,6 +238,12 @@ module PermalinkFu
     # Don't even check _changed? methods unless :update is set
     def permalink_fields_changed?
       return false unless self.class.permalink_options[:update]
+
+      # HACK: sometimes change tracking doesn't seem to work correctly in new translations? no test yet to verify
+      if self.class.permalink_options[:globalize] && !self.translated_locales.include?(Globalize.locale)
+        return true # <= the current Globalize translation is new
+      end
+
       self.class.permalink_attributes.any? do |attribute|
         changed_method = "#{attribute}_changed?"
         respond_to?(changed_method) ? send(changed_method) : true
@@ -241,6 +252,12 @@ module PermalinkFu
 
     def permalink_scope_fields_changed?
       return false unless self.class.permalink_options[:update] && self.class.permalink_options[:scope]
+
+      # HACK: sometimes change tracking doesn't seem to work correctly in new translations? no test yet to verify
+      if self.class.permalink_options[:globalize] && !self.translated_locales.include?(Globalize.locale)
+        return true # <= the current Globalize translation is new
+      end
+
       [*self.class.permalink_options[:scope]].any? do |attribute|
         changed_method = "#{attribute}_changed?"
         respond_to?(changed_method) ? send(changed_method) : true
