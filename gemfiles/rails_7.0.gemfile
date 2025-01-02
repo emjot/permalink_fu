@@ -2,7 +2,13 @@
 
 source "https://rubygems.org"
 
+gem "mocha"
+gem "activesupport", [">= 7.0", "< 9"]
+gem "sqlite3", "~> 1.7"
+gem "bundler", "~> 2.5"
+gem "appraisal", "~> 2.5"
+gem "rake"
+gem "wwtd", "~> 1.0"
 gem "rails", "~> 7.0.0"
-gem "globalize", "~> 6.0"
 
 gemspec path: "../"

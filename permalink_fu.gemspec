@@ -17,14 +17,8 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = PermalinkFu::VERSION
 
-  gem.add_dependency 'activerecord', ['>= 5.1', '< 8'] # FIXME: support other versions too?
+  gem.required_ruby_version = '>= 3.0.0'
 
-  gem.add_development_dependency 'mocha'
-  gem.add_development_dependency 'activesupport', ['>= 5.1', '< 8'] # FIXME: required at runtime ????
-  gem.add_development_dependency 'sqlite3',       '~> 1.5.0'
-  gem.add_development_dependency 'globalize'
-  gem.add_development_dependency 'bundler',       '~> 2.3'
-  gem.add_development_dependency 'appraisal',     '~> 2.0'
-  gem.add_development_dependency 'rake'
-  gem.add_development_dependency 'wwtd',          '~> 1.0'
+  gem.add_dependency 'activerecord', ['>= 7.0', '< 9']
+  gem.add_dependency 'globalize', '~> 7.0'
 end

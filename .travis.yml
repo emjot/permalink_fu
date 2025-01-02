@@ -1,22 +1,21 @@
 language: ruby
 rvm:
-  - 2.7.8
   - 3.0.6
   - 3.1.4
-  - 3.2.3
+  - 3.2.6
+  - 3.3.6
 script: "bundle exec rake test"
 bundler_args: ""
 gemfile:
-  - gemfiles/rails_5.2.gemfile
-  - gemfiles/rails_6.0.gemfile
-  - gemfiles/rails_6.1.gemfile
   - gemfiles/rails_7.0.gemfile
   - gemfiles/rails_7.1.gemfile
+  - gemfiles/rails_7.2.gemfile
+  - gemfiles/rails_8.0.gemfile
 matrix:
   exclude:
     - rvm: 3.0.6
-      gemfile: gemfiles/rails_5.2.gemfile
+      gemfile: gemfiles/rails_7.2.gemfile
+    - rvm: 3.0.6
+      gemfile: gemfiles/rails_8.0.gemfile
     - rvm: 3.1.4
-      gemfile: gemfiles/rails_5.2.gemfile
-    - rvm: 3.2.3
-      gemfile: gemfiles/rails_5.2.gemfile
+      gemfile: gemfiles/rails_8.0.gemfile
