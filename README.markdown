@@ -81,15 +81,11 @@ Note:
 ## Development and Testing
 
 If you change any gem dependencies, you need to re-generate the gemfiles via `bundle exec appraisal update`.
-  
-To setup tests, make sure all the ruby versions defined in `.travis.yml` are installed on your system.
 
 Run tests via:
 
-* `rake wwtd` (or, faster: `rake wwtd:parallel`) for all combinations of ruby/rails versions
-* `rake wwtd:local` for all rails versions, but only on current ruby
-* `rake spec` (or e.g. `bundle exec rspec spec --format documentation`) with main Gemfile and only on current ruby 
-
+* `rake test` for the current rails version with the current ruby version
+* `rake all` for all rails versions with the current ruby version
 
 ## Credits
 

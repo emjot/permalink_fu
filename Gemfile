@@ -7,10 +7,9 @@ gemspec
 gem 'rake', '~> 13.3'
 
 # testing
-gem 'appraisal', '~> 2.5'
+gem 'appraisal2'
 gem 'mocha'
 gem 'sqlite3'
-gem 'wwtd', '~> 1.0'
 
 # linters
 gem 'rubocop', '~> 1.86'
