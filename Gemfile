@@ -2,10 +2,10 @@ source 'https://rubygems.org'
 
 gemspec
 
+gem 'rake', '~> 13.3'
+
+# testing
+gem 'appraisal', '~> 2.5'
 gem 'mocha'
-gem 'activesupport', ['>= 7.0', '< 9'] # FIXME: required at runtime ????'
 gem 'sqlite3'
-gem 'bundler',       '~> 2.5'
-gem 'appraisal',     '~> 2.5'
-gem 'rake'
-gem 'wwtd',          '~> 1.0'
+gem 'wwtd', '~> 1.0'
