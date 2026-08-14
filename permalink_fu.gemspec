@@ -20,5 +20,5 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version = '>= 3.0.0'
 
   gem.add_dependency 'activerecord', ['>= 7.0', '< 9']
-  gem.add_dependency 'globalize', '~> 7.0'
+  gem.add_dependency 'globalize', '~> 7.1'
 end

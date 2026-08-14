@@ -12,8 +12,8 @@ task :default => :test
 task :local => "wwtd:local" # run all gemfiles with local ruby
 
 desc 'Run tests with all supported Rails versions.'
-task :all => ["appraisal:install"] do
-  exec('rake appraisal test')
+task :all do
+  exec('bundle exec appraisal install && bundle exec appraisal rake test')
 end
 
 desc 'Test the permalink_fu.'

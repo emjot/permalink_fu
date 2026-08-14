@@ -17,3 +17,8 @@ appraise 'rails-8.0' do
   gem 'rails', '~> 8.0.0'
   gem 'sqlite3', '~> 2.5'
 end
+
+appraise 'rails-8.1' do
+  gem 'rails', '~> 8.1.0'
+  gem 'sqlite3', '~> 2.5'
+end
