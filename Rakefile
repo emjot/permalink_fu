@@ -1,4 +1,6 @@
 #!/usr/bin/env rake
+# frozen_string_literal: true
+
 require 'bundler/gem_tasks'
 require 'bundler/setup'
 require 'appraisal'
@@ -7,9 +9,9 @@ require 'rake/testtask'
 require 'wwtd/tasks'
 
 desc 'Default: run unit tests.'
-task :default => :test
+task default: :test
 
-task :local => "wwtd:local" # run all gemfiles with local ruby
+task local: 'wwtd:local' # run all gemfiles with local ruby
 
 desc 'Run tests with all supported Rails versions.'
 task :all do

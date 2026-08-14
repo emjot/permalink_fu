@@ -1,10 +1,9 @@
-# encoding: UTF-8
+# frozen_string_literal: true
 
 # Load test_helper
-require File.expand_path(File.dirname(__FILE__) + '/test_helper.rb')
+require File.expand_path("#{File.dirname(__FILE__)}/test_helper.rb")
 
 class PermalinkFuGlobalizeTest < ActiveSupport::TestCase
-
   setup do
     reset_db!
   end
@@ -12,8 +11,8 @@ class PermalinkFuGlobalizeTest < ActiveSupport::TestCase
   test 'translations' do
     Globalize.with_locale(:en) do
       assert_equal true, Post.translates?
-      assert_equal %w(content permalink subject), Post.translated_attribute_names.map(&:to_s).sort
-      p = Post.create!(:subject => 'Post 1')
+      assert_equal %w[content permalink subject], Post.translated_attribute_names.map(&:to_s).sort
+      p = Post.create!(subject: 'Post 1')
       assert_equal 1, ActiveRecord::VERSION::MAJOR >= 5 ? p.translations.reload.size : p.translations(true).size
       assert_equal :en, p.translations[0].locale
       assert_equal [:en], p.translated_locales
@@ -22,7 +21,7 @@ class PermalinkFuGlobalizeTest < ActiveSupport::TestCase
 
   test 'creation of permalink on new record' do
     Globalize.with_locale(:en) do
-      p = Post.create!(:subject => 'Post 1')
+      p = Post.create!(subject: 'Post 1')
       assert_equal 'Post 1', p.subject
       assert_equal 'post-1', p.permalink
     end
@@ -30,17 +29,17 @@ class PermalinkFuGlobalizeTest < ActiveSupport::TestCase
 
   test 'change of permalink on existing record' do
     Globalize.with_locale(:en) do
-      p = Post.create!(:subject => 'Post 1')
-      p.update!({:subject => "Post 1 New"})
+      p = Post.create!(subject: 'Post 1')
+      p.update!({ subject: 'Post 1 New' })
       assert_equal 'Post 1 New', p.subject
       assert_equal 'post-1-new', p.permalink
     end
   end
 
   test 'creation of permalink on new translation record' do
-    p = Globalize.with_locale(:en) { Post.create!(:subject => 'Post 1') }
+    p = Globalize.with_locale(:en) { Post.create!(subject: 'Post 1') }
     Globalize.with_locale(:de) do
-      p.update!({:subject => "Nachricht 1"})
+      p.update!({ subject: 'Nachricht 1' })
       assert_equal 'Nachricht 1', p.subject
       assert_equal 'nachricht-1', p.permalink
     end
@@ -48,8 +47,8 @@ class PermalinkFuGlobalizeTest < ActiveSupport::TestCase
 
   test 'uniqueness of permalink' do
     Globalize.with_locale(:en) do
-      p = Post.create!(:subject => 'Post')
-      p2 = Post.create!(:subject => 'Post')
+      p = Post.create!(subject: 'Post')
+      p2 = Post.create!(subject: 'Post')
       assert_equal 'post', p.permalink
       assert_equal 'post-2', p2.permalink
     end
@@ -57,8 +56,8 @@ class PermalinkFuGlobalizeTest < ActiveSupport::TestCase
 
   test 'uniqueness of permalink on change of exiting record' do
     Globalize.with_locale(:en) do
-      p = Post.create!(:subject => 'Post')
-      p2 = Post.create!(:subject => 'Post2')
+      p = Post.create!(subject: 'Post')
+      p2 = Post.create!(subject: 'Post2')
       p2.subject = 'Post'
       assert_equal true, p2.changed.include?('subject')
       p2.save!
@@ -69,23 +68,23 @@ class PermalinkFuGlobalizeTest < ActiveSupport::TestCase
 
   test 'uniqueness of permalink on change of existing record using update attributes' do
     Globalize.with_locale(:en) do
-      p = Post.create!(:subject => 'Post')
-      p2 = Post.create!(:subject => 'Post2')
-      p2.update!(:subject => 'Post')
+      p = Post.create!(subject: 'Post')
+      p2 = Post.create!(subject: 'Post2')
+      p2.update!(subject: 'Post')
       assert_equal 'post', p.permalink
       assert_equal 'post-2', p2.permalink
     end
   end
 
   test 'uniqueness of permalink in locale scope' do
-    Globalize.with_locale(:en) { p = Post.create!(:subject => 'Post') }
+    Globalize.with_locale(:en) { Post.create!(subject: 'Post') }
     Globalize.with_locale(:de) do
-      p2 = Post.create!(:subject => 'Post')
+      p2 = Post.create!(subject: 'Post')
       assert_equal 'post', p2.permalink
     end
 
     Globalize.with_locale(:en) do
-      p3 = Post.create!(:subject => 'Post')
+      p3 = Post.create!(subject: 'Post')
       assert_equal 'post-2', p3.permalink
     end
   end
@@ -94,25 +93,25 @@ class PermalinkFuGlobalizeTest < ActiveSupport::TestCase
 
   test 'two permalink attrs one translated' do
     Globalize.with_locale(:en) do
-      p = Project.create!(:title => 'My Project', :number => 42)
+      p = Project.create!(title: 'My Project', number: 42)
       assert_equal '42-my-project', p.permalink
     end
   end
 
   test 'only one of two permalink_attrs' do
     Globalize.with_locale(:en) do
-      p = Project.create!(:title => 'My Project')
+      p = Project.create!(title: 'My Project')
       assert_equal 'my-project', p.permalink
     end
   end
 
   test 'change untranslated permalink attr' do
-    p = Globalize.with_locale(:en) { Project.create!(:title => 'My Project', :number => 42) }
+    p = Globalize.with_locale(:en) { Project.create!(title: 'My Project', number: 42) }
     Globalize.with_locale(:de) do
-      p.update!(:title => 'Mein Projekt')
+      p.update!(title: 'Mein Projekt')
       assert_equal '42-mein-projekt', p.permalink
 
-      p.update!(:number => 23)
+      p.update!(number: 23)
       assert_equal '23-mein-projekt', p.permalink
     end
 
@@ -120,22 +119,22 @@ class PermalinkFuGlobalizeTest < ActiveSupport::TestCase
   end
 
   test 'change both permalink attrs' do
-    p = Globalize.with_locale(:en) { Project.create!(:title => 'My Project', :number => 42) }
-    Globalize.with_locale(:de) { p.update!(:title => 'Mein Projekt') }
-    Globalize.with_locale(:en) { p.update!(:title => 'My New Project', :number => 23) }
+    p = Globalize.with_locale(:en) { Project.create!(title: 'My Project', number: 42) }
+    Globalize.with_locale(:de) { p.update!(title: 'Mein Projekt') }
+    Globalize.with_locale(:en) { p.update!(title: 'My New Project', number: 23) }
     Globalize.with_locale(:de) { assert_equal '23-mein-projekt', p.permalink }
     Globalize.with_locale(:en) { assert_equal '23-my-new-project', p.permalink }
   end
 
   test 'uniqueness locale mixed translated permalink attrs' do
-    Globalize.with_locale(:en) { p = Project.create!(:title => 'My Project', :number => 42) }
+    Globalize.with_locale(:en) { Project.create!(title: 'My Project', number: 42) }
     Globalize.with_locale(:de) do
-      p2 = Project.create!(:title => 'My Project', :number => 42)
+      p2 = Project.create!(title: 'My Project', number: 42)
       assert_equal '42-my-project', p2.permalink
     end
 
     Globalize.with_locale(:en) do
-      p3 = Project.create!(:title => 'My Project', :number => 42)
+      p3 = Project.create!(title: 'My Project', number: 42)
       assert_equal '42-my-project-2', p3.permalink
     end
   end
@@ -152,13 +151,13 @@ class PermalinkFuGlobalizeTest < ActiveSupport::TestCase
 
   test 'uniqueness with scopes' do
     Globalize.with_locale(:en) do
-      p1 = Project.create!(:title => 'My Project')
-      p2 = Project.create!(:title => 'My Second Project')
-      c1 = Comment.create!(:project => p1, :number => 1, :title => 'My Comment', :category_name => 'cat')
-      c2 = Comment.create!(:project => p1, :number => 1, :title => 'My Comment', :category_name => 'cat2')
-      c3 = Comment.create!(:project => p2, :number => 1, :title => 'My Comment', :category_name => 'cat')
-      @c4 = Comment.create!(:project => p2, :number => 1, :title => 'My Comment', :category_name => 'cat2')
-      c11 = Comment.create!(:project => p1, :number => 1, :title => 'My Comment', :category_name => 'cat') # double of c1
+      p1 = Project.create!(title: 'My Project')
+      p2 = Project.create!(title: 'My Second Project')
+      c1 = Comment.create!(project: p1, number: 1, title: 'My Comment', category_name: 'cat')
+      c2 = Comment.create!(project: p1, number: 1, title: 'My Comment', category_name: 'cat2')
+      c3 = Comment.create!(project: p2, number: 1, title: 'My Comment', category_name: 'cat')
+      @c4 = Comment.create!(project: p2, number: 1, title: 'My Comment', category_name: 'cat2')
+      c11 = Comment.create!(project: p1, number: 1, title: 'My Comment', category_name: 'cat') # double of c1
 
       assert_equal '1-my-comment', c1.permalink
       assert_equal '1-my-comment', c2.permalink
@@ -168,13 +167,13 @@ class PermalinkFuGlobalizeTest < ActiveSupport::TestCase
     end
 
     Globalize.with_locale(:de) do
-      @c4.update!({:title => 'My Comment', :category_name => 'xxx'}) # TODO change to 'cat' - like c3, but in different locale
+      @c4.update!({ title: 'My Comment', category_name: 'xxx' }) # TODO: change to 'cat' - like c3, but in different locale
       assert_equal '1-my-comment', @c4.permalink
     end
 
     Globalize.with_locale(:en) do
       assert_not_equal 'cat', @c4.category_name
-      @c4.update!({:category_name => 'cat'})
+      @c4.update!({ category_name: 'cat' })
       assert_equal 'cat', @c4.category_name
       assert_equal '1-my-comment-2', @c4.permalink # updated to be like c3 (in same locale as c3)
     end
@@ -182,9 +181,9 @@ class PermalinkFuGlobalizeTest < ActiveSupport::TestCase
 
   test 'uniqueness with nil scopes' do
     Globalize.with_locale(:en) do
-      c1 = Comment.create!(:number => 1, :title => 'My Comment')
-      c2 = Comment.create!(:number => 1, :title => 'My Comment')
-      c3 = Comment.create!(:number => 1, :title => 'My Other Comment')
+      c1 = Comment.create!(number: 1, title: 'My Comment')
+      c2 = Comment.create!(number: 1, title: 'My Comment')
+      c3 = Comment.create!(number: 1, title: 'My Other Comment')
       assert_equal '1-my-comment', c1.permalink
       assert_equal '1-my-comment-2', c2.permalink
       assert_equal '1-my-other-comment', c3.permalink
@@ -192,8 +191,8 @@ class PermalinkFuGlobalizeTest < ActiveSupport::TestCase
   end
 
   test 'change permalink attr to same as other locale after switching' do
-    p = Globalize.with_locale(:en) { Post.create!(:subject => 'Post') }
-    Globalize.with_locale(:de) { p.update!(:subject => 'XXX') }
+    p = Globalize.with_locale(:en) { Post.create!(subject: 'Post') }
+    Globalize.with_locale(:de) { p.update!(subject: 'XXX') }
     Globalize.with_locale(:en) do
       p.subject = 'XXX'
       assert_equal true, p.changed.include?('subject')
@@ -201,5 +200,4 @@ class PermalinkFuGlobalizeTest < ActiveSupport::TestCase
       assert_equal 'xxx', p.permalink
     end
   end
-
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # borrowed from https://github.com/joshmh/globalize2
 
 require 'rubygems'
@@ -13,36 +15,38 @@ require 'mocha'
 require 'globalize'
 require 'permalink_fu'
 
-ActiveRecord::Base.establish_connection(:adapter => 'sqlite3', :database => ':memory:')
+ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
 
-require File.expand_path(File.dirname(__FILE__) + '/data/models.rb')
+require File.expand_path("#{File.dirname(__FILE__)}/data/models.rb")
 
-class ActiveSupport::TestCase
-  ActiveSupport.test_order = :random if ActiveSupport.respond_to?(:test_order)
+module ActiveSupport
+  class TestCase
+    ActiveSupport.test_order = :random if ActiveSupport.respond_to?(:test_order)
 
-  def reset_db!(schema_path = nil)
-    ActiveRecord::Migration.verbose = false
+    def reset_db!(schema_path = nil)
+      ActiveRecord::Migration.verbose = false
 
-    schema_path ||= File.expand_path(File.dirname(__FILE__) + '/data/schema.rb')
-    load(schema_path)
-  end
-
-  def assert_member(item, array)
-    assert_block "Item #{item} is not in array #{array}" do
-      array.member?(item)
+      schema_path ||= File.expand_path("#{File.dirname(__FILE__)}/data/schema.rb")
+      load(schema_path)
     end
-  end
 
-  def assert_belongs_to(model, associated)
-    assert model.reflect_on_all_associations(:belongs_to).detect { |association|
-      association.name.to_s == associated.to_s
-    }
-  end
+    def assert_member(item, array)
+      assert_block "Item #{item} is not in array #{array}" do
+        array.member?(item)
+      end
+    end
 
-  def assert_has_many(model, associated)
-    assert model.reflect_on_all_associations(:has_many).detect { |association|
-      association.name.to_s == associated.to_s
-    }
+    def assert_belongs_to(model, associated)
+      assert(model.reflect_on_all_associations(:belongs_to).detect do |association|
+        association.name.to_s == associated.to_s
+      end)
+    end
+
+    def assert_has_many(model, associated)
+      assert(model.reflect_on_all_associations(:has_many).detect do |association|
+        association.name.to_s == associated.to_s
+      end)
+    end
   end
 end
 
