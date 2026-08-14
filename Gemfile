@@ -9,3 +9,9 @@ gem 'appraisal', '~> 2.5'
 gem 'mocha'
 gem 'sqlite3'
 gem 'wwtd', '~> 1.0'
+
+# linters
+gem 'rubocop', '~> 1.86'
+gem 'rubocop-performance', '~> 1.26'
+gem 'rubocop-rake', '~> 0.7'
+gem 'rubocop-rspec', '~> 3.9'
